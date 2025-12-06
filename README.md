@@ -1,49 +1,111 @@
-# Finca — Finance Manager
+# Finca — Finance Manager (Web Project)
 
-Finca is a browser-based finance management tool for tracking investments, sales, profits, expenses, delivery fees, cashflow and inventory — with live charts and easy data export/import.
+<p align="left">
+  <a href="https://thegeekshop.github.io/finca/" target="_blank">
+    <img src="https://img.shields.io/badge/Open%20Finca%20Tool-Click%20Here-blue?style=for-the-badge">
+  </a>
+</p>
 
-## Features
-- Track invested capital, reinvestments, returns, profit, expenses, delivery fees, cash on hand, inventory and inventory value.
-- Add transactions for buying (investment / reinvestment), selling, and expenses/withdrawals.
-- Automatic deduction of delivery fee (default 1% on sales).
-- Live charts showing monthly cash flow and cash balance over time.
-- Export data to `.finca` file for backup or sharing.
-- Import a `.finca` file to restore previous data.
-- Clear all data if needed.
+Finca is a simple browser-based finance tracking tool designed for small businesses and personal use.  
+It helps you track **investments, reinvestments, returns, profits, expenses, delivery fees, cash balance, and inventory value**, along with **live charts** for better visualization.
 
-## Usage
-1. Open the Finca page in a browser.  
-2. Use **Add Transaction** to record buy, sell, or expense/withdrawal.  
-3. Monitor your financial health through the charts (cash flow, cash balance over time).  
-4. Export your data for backup, or import to restore — especially useful for long-term tracking or moving between devices.  
-5. Use **Clear All Data** to start fresh (note: this deletes all stored data).
+This project runs entirely in the browser — **no installation required**.
 
-## Why Finca
-- Simple, intuitive, no installation required.  
-- Portable: data export/import makes it easy to back up or transfer records.  
-- Useful for small business owners, freelancers, or anyone wanting to track personal finances.  
-- Visual insights through charts — better understanding of cash flow and financial trends with minimal effort.
+---
 
-## License / Attribution
-Finca — Finance Manager (Web Project)
-Copyright (c) 2025 The Geek Shop
+## 🚀 Features
 
-Permission is hereby granted, free of charge, to any person who views, uses,
-or modifies this web-based project.
+- Track:
+  - Invested capital  
+  - Reinvestments  
+  - Returns  
+  - Profit  
+  - Expenses / Withdrawals  
+  - Delivery fees paid  
+  - Cash on hand  
+  - Inventory count & inventory value  
 
-You are free to:
-- Use the project as-is  
-- Modify or customize it for personal or commercial use  
-- Create your own version or derivative  
-- Publish or host your modified version  
+- Add transactions:
+  - **Buy** (investment & reinvestment)
+  - **Sell**
+  - **Expense / Withdrawal**
 
-Condition:
-- If you publish or publicly share a modified or derivative version,
-  you MUST give proper credit to the original creator:
+- Auto-deduct delivery fee from sales (default 1%)
 
-  "Based on the Finca Finance Manager Web Project by The Geek Shop (thegeekshop.github.io/finca)."
+- **Live charts**:
+  - Monthly cash flow
+  - Cash balance over time
 
-This project is provided “AS IS” without any warranties or guarantees of any kind.
-The original creators are not responsible for any issues or damages resulting from its use.
+- **Data export** to `.finca` file for backup  
+- **Data import** to restore save files  
+- "Clear All Data" option to reset everything  
 
+- 100% client-side, no backend, no database  
+
+---
+
+## 📦 How to Use
+
+### 1. Open the Tool  
+Click here to launch the tool:  
+👉 **[Finca Finance Manager](https://thegeekshop.github.io/finca/)**
+
+### 2. Add Transactions  
+Use the **Add Transaction** panel to record:
+- Buy / Invest
+- Sell
+- Expense / Withdraw
+
+Fill in the fields, submit, and the app will update totals & charts automatically.
+
+### 3. Check Charts  
+Use the built-in graphs to monitor:
+- Monthly cash flow  
+- Cash balance over time  
+
+### 4. Save or Restore Data  
+You can export your records using **Export Data**, which downloads a `.finca` file.
+
+To restore data:
+- Click **Import Save File**
+- Select your `.finca` backup
+
+### 5. Reset  
+Press **Clear All Data** if you want to restart from scratch  
+*(This deletes all stored data — use with caution!).*
+
+---
+
+## 🔗 Live Demo Link
+
+[**Click here to open Finca Finance Manager**](https://thegeekshop.github.io/finca/)
+
+---
+
+## 🧩 Tech Stack
+
+- HTML  
+- CSS  
+- JavaScript  
+- LocalStorage for data saving  
+- Charts powered by lightweight JS charting library (or custom canvas code)  
+- Runs purely in the browser  
+
+---
+
+## 📄 License
+
+This project is licensed under the **Finca Web Project License**.  
+See [LICENSE.md](LICENSE.md) for details.
+
+---
+
+## 👤 Author
+
+**The Geek Shop**  
+🔗 https://github.com/thegeekshop
+
+**Kawsar A. Tonmoy** 
+
+🔗 https://github.com/kawsar-a-tonmoy
 
