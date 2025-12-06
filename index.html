@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finca - Finance Manager</title>
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --card-bg: rgba(30, 30, 40, 0.6);
+      --glass: rgba(255, 255, 255, 0.08);
+      --border: rgba(255, 255, 255, 0.12);
+      --text: #e0e0e0;
+      --text-muted: #aaaaaa;
+      --primary: #007aff;
+      --danger: #ff453a;
+      --success: #32d74b;
+      --warning: #ff9f0a;
+      --delivery: #ff9500;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      padding:2rem;
+      background-image:
+        radial-gradient(circle at 10% 20%,rgba(0,122,255,.15)0%,transparent 20%),
+        radial-gradient(circle at 90% 80%,rgba(50,215,75,.15)0%,transparent 20%);
+    }
+    .container{
+      max-width:1280px;margin:0 auto;
+      background:var(--card-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border-radius:24px;padding:2.5rem;border:1px solid var(--border);box-shadow:var(--shadow);
+      position:relative;overflow:hidden;
+    }
+    .container::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);
+    }
+    h1{
+      text-align:center;font-weight:700;font-size:2.2rem;margin-bottom:.5rem;
+      background:linear-gradient(135deg,#fff,#aaa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      letter-spacing:-.5px;
+    }
+    p.subtitle{
+      text-align:center;color:var(--text-muted);font-size:.95rem;margin-bottom:2rem;max-width:800px;margin-left:auto;margin-right:auto;
+    }
+    .summary{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-bottom:2.5rem;
+    }
+    .card{
+      background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:1.3rem;text-align:center;
+      transition:all .3s ease;backdrop-filter:blur(12px);
+    }
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,.2);border-color:rgba(255,255,255,.2);}
+    .card h3{font-size:.8rem;color:var(--text-muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
+    .card span{font-size:1.7rem;font-weight:700;display:block;background:linear-gradient(135deg,#fff,#ccc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .controls{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}
+    button{
+      background:var(--glass);border:1px solid var(--border);color:var(--text);padding:.75rem 1.2rem;
+      border-radius:12px;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .25s ease;
+      backdrop-filter:blur(10px);flex:1;min-width:140px;
+    }
+    button:hover{background:rgba(255,255,255,.15);border-color:var(--primary);transform:translateY(-2px);}
+    button.primary{background:var(--primary);color:#fff;border:none;}
+    button.danger{background:var(--danger);color:#fff;border:none;}
+    .form-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;
+    }
+    select,input{
+      background:var(--glass);border:1px solid var(--border);color:var(--text);padding:.9rem 1rem;
+      border-radius:12px;font-size:1rem;backdrop-filter:blur(10px);transition:all .2s ease;
+    }
+    select:focus,input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,122,255,.2);}
+    .extra-options{
+      grid-column:1/-1;display:flex;align-items:center;gap:.8rem;margin-top:.5rem;
+      padding:1rem;background:rgba(255,149,0,.1);border-radius:12px;border:1px solid rgba(255,149,0,.2);
+    }
+    .extra-options label{
+      color:var(--delivery);font-weight:500;font-size:.95rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;
+    }
+    .charts{
+      display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin:3rem 0;
+    }
+    .chart-container{
+      background:var(--glass);border:1px solid var(--border);border-radius:16px;
+      padding:1.5rem;backdrop-filter:blur(12px);
+    }
+    .chart-title{
+      text-align:center;font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:var(--text);opacity:0.9;
+    }
+    canvas{display:block;width:100%;height:300px;}
+    .transaction-list{list-style:none;margin-top:1rem;}
+    .transaction-item{
+      background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;
+      margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center;
+      transition:all .2s ease;animation:slideIn .3s ease forwards;
+    }
+    .transaction-item:hover{border-color:rgba(255,255,255,.2);transform:translateX(4px);}
+    .transaction-text{font-size:.95rem;color:var(--text);}
+    .transaction-text small{color:var(--text-muted);font-size:.8rem;}
+    .delete-btn{
+      background:var(--danger);color:#fff;border:none;
+      padding:0.25rem 0.45rem;border-radius:6px;font-size:0.7rem;font-weight:500;
+      cursor:pointer;transition:all .2s ease;margin-left:auto;
+    }
+    .delete-btn:hover{background:#e0332a;transform:scale(1.07);}
+    @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    .save-status{text-align:center;font-size:.8rem;color:var(--success);margin-top:1rem;opacity:0;transition:opacity .3s;}
+    .save-status.show{opacity:1;}
+    @media(max-width:992px){.charts{grid-template-columns:1fr;}}
+    @media(max-width:768px){.controls{flex-direction:column;}.form-grid{grid-template-columns:1fr;}.container{padding:1.5rem;}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Finca — Finance Manager</h1>
+    <p class="subtitle">
+      Track investments, sales, profits, expenses & delivery fees with live charts.
+    </p>
+
+    <div class="controls">
+      <button id="exportBtn">Export Data</button>
+      <button id="importBtn">Import Save File</button>
+      <button id="chooseFolderBtn">Choose Save Folder</button>
+      <button id="clearAllBtn" class="danger">Clear All Data</button>
+    </div>
+
+    <div class="summary">
+      <div class="card"><h3>Invested</h3><span id="invested">0</span></div>
+      <div class="card"><h3>Reinvested</h3><span id="reinvested">0</span></div>
+      <div class="card"><h3>Returns</h3><span id="returns">0</span></div>
+      <div class="card"><h3>Profit</h3><span id="earned">0</span></div>
+      <div class="card"><h3>Expenses</h3><span id="expenses">0</span></div>
+      <div class="card"><h3 style="color:var(--delivery)">Delivery Fees Paid</h3><span id="deliveryFees">0</span></div>
+      <div class="card"><h3>Cash</h3><span id="cash">0</span></div>
+      <div class="card"><h3>Inventory</h3><span id="inventoryQty">0</span></div>
+      <div class="card"><h3>Inv. Value</h3><span id="inventoryValue">0</span></div>
+    </div>
+
+    <form id="transactionForm" class="form-grid">
+      <select id="transactionType">
+        <option value="buy">Buy (Invest/Reinvest)</option>
+        <option value="sell">Sell Products</option>
+        <option value="expense">Expense / Withdrawal</option>
+      </select>
+      <div id="sourceWrapper">
+        <select id="source">
+          <option value="invest">Initial Investment</option>
+          <option value="reinvest">Reinvestment</option>
+        </select>
+      </div>
+      <input type="number" id="quantity" placeholder="Quantity" min="1" step="1" />
+      <input type="number" id="amount" placeholder="Total Amount (Buy) / Price per Unit (Sell)" step="0.01" required />
+      <input type="date" id="date" required />
+      <button type="submit" class="primary">Add Transaction</button>
+    </form>
+
+    <div class="extra-options" id="deliveryOption" style="display:none;">
+      <label>
+        <input type="checkbox" id="deliveryCheckbox" />
+        Deduct Delivery Fee (1% of sale)
+      </label>
+    </div>
+
+    <div class="save-status" id="saveStatus">Saved to folder</div>
+
+    <div class="charts">
+      <div class="chart-container">
+        <div class="chart-title">Monthly Cash Flow</div>
+        <canvas id="monthlyChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Cash Balance Over Time</div>
+        <canvas id="balanceChart"></canvas>
+      </div>
+    </div>
+
+    <h2 style="margin:3rem 0 1rem;font-size:1.4rem;color:#fff;">Transactions</h2>
+    <ul class="transaction-list" id="transactionList"></ul>
+  </div>
+
+  <script>
+    // STATE
+    let state = JSON.parse(localStorage.getItem('financeState')) || {
+      cash: 0, totalInvested: 0, totalReinvested: 0, totalReturns: 0, totalProfits: 0,
+      totalDeliveryFees: 0, totalExpenses: 0, inventory: [], transactions: []
+    };
+
+    let folderHandle = null;
+    const saveStatus = document.getElementById('saveStatus');
+    let monthlyChart = null, balanceChart = null;
+
+    // CHARTS
+    function createCharts() {
+      const monthly = getMonthlyData();
+      const balance = getBalanceOverTime();
+
+      // Destroy old charts
+      if (monthlyChart) monthlyChart.destroy();
+      if (balanceChart) balanceChart.destroy();
+
+      monthlyChart = new Chart(document.getElementById('monthlyChart'), {
+        type: 'bar',
+        data: {
+          labels: monthly.labels,
+          datasets: [
+            { label: 'Sales Income', data: monthly.income, backgroundColor: 'rgba(50,215,75,0.6)', borderColor: '#32d74b', borderWidth: 2 },
+            { label: 'Expenses', data: monthly.expenses, backgroundColor: 'rgba(255,159,10,0.6)', borderColor: '#ff9f0a', borderWidth: 2 },
+            { label: 'Delivery Fees', data: monthly.delivery, backgroundColor: 'rgba(255,69,58,0.6)', borderColor: '#ff453a', borderWidth: 2 }
+          ]
+        },
+        options: { responsive: true, plugins: { legend: { labels: { color: '#e0e0e0' } } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa' } } } }
+      });
+
+      balanceChart = new Chart(document.getElementById('balanceChart'), {
+        type: 'line',
+        data: {
+          labels: balance.dates,
+          datasets: [{
+            label: 'Cash Balance',
+            data: balance.balances,
+            borderColor: '#007aff',
+            backgroundColor: 'rgba(0,122,255,0.1)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#007aff',
+            pointRadius: 4
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { labels: { color: '#e0e0e0' } } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa' } } } }
+      });
+    }
+
+    function getMonthlyData() {
+      const monthly = {};
+      state.transactions.forEach(t => {
+        const d = new Date(t.date);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        const label = d.toLocaleString('en-GB', { month: 'short', year: 'numeric' });
+        if (!monthly[key]) monthly[key] = { income: 0, expenses: 0, delivery: 0, label };
+        if (t.type === 'sell') {
+          const sale = t.quantity * t.amount;
+          monthly[key].income += sale;
+          if (t.hasDeliveryFee) monthly[key].delivery += sale * 0.01;
+        }
+        if (t.type === 'expense') monthly[key].expenses += t.amount;
+      });
+      const sortedKeys = Object.keys(monthly).sort();
+      return {
+        labels: sortedKeys.map(k => monthly[k].label),
+        income: sortedKeys.map(k => monthly[k].income),
+        expenses: sortedKeys.map(k => monthly[k].expenses),
+        delivery: sortedKeys.map(k => monthly[k].delivery)
+      };
+    }
+
+    function getBalanceOverTime() {
+      const sorted = [...state.transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
+      let balance = 0;
+      const dates = [], balances = [];
+      sorted.forEach(t => {
+        if (t.type === 'buy' && t.source === 'invest') balance += t.amount;
+        if (t.type === 'buy' && t.source === 'reinvest') balance -= t.amount;
+        if (t.type === 'sell') {
+          balance += t.quantity * t.amount;
+          if (t.hasDeliveryFee) balance -= t.quantity * t.amount * 0.01;
+        }
+        if (t.type === 'expense') balance -= t.amount;
+        dates.push(new Date(t.date).toLocaleDateString('en-GB'));
+        balances.push(+balance.toFixed(2));
+      });
+      return { dates, balances };
+    }
+
+    // REBUILD STATE (100% accurate)
+    function rebuildState() {
+      state.cash = state.totalInvested = state.totalReinvested = state.totalReturns = state.totalProfits = state.totalDeliveryFees = state.totalExpenses = 0;
+      state.inventory = [];
+
+      const sorted = [...state.transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+      sorted.forEach(t => {
+        if (t.type === 'buy') {
+          const costPer = t.amount / t.quantity;
+          state.inventory.push({ date: t.date, costPer, quantityRemaining: t.quantity });
+          if (t.source === 'invest') state.totalInvested += t.amount;
+          else { state.cash -= t.amount; state.totalReinvested += t.amount; }
+        }
+        else if (t.type === 'sell') {
+          let rem = t.quantity, cog = 0, i = 0;
+          while (rem > 0 && i < state.inventory.length) {
+            const lot = state.inventory[i];
+            const take = Math.min(rem, lot.quantityRemaining);
+            cog += take * lot.costPer;
+            lot.quantityRemaining -= take;
+            rem -= take;
+            if (lot.quantityRemaining === 0) state.inventory.splice(i, 1);
+            else i++;
+          }
+          const totalSale = t.quantity * t.amount;
+          state.cash += totalSale;
+          state.totalReturns += totalSale;
+          state.totalProfits += (totalSale - cog);
+          if (t.hasDeliveryFee) {
+            const fee = totalSale * 0.01;
+            state.cash -= fee;
+            state.totalDeliveryFees += fee;
+          }
+        }
+        else if (t.type === 'expense') {
+          state.cash -= t.amount;
+          state.totalExpenses += t.amount;
+        }
+      });
+    }
+
+    // UI UPDATE
+    function updateSummaries() {
+      document.getElementById('invested').textContent = state.totalInvested.toFixed(2) + ' ৳';
+      document.getElementById('reinvested').textContent = state.totalReinvested.toFixed(2) + ' ৳';
+      document.getElementById('returns').textContent = state.totalReturns.toFixed(2) + ' ৳';
+      document.getElementById('earned').textContent = state.totalProfits.toFixed(2) + ' ৳';
+      document.getElementById('cash').textContent = state.cash.toFixed(2) + ' ৳';
+      document.getElementById('deliveryFees').textContent = state.totalDeliveryFees.toFixed(2) + ' ৳';
+      document.getElementById('expenses').textContent = state.totalExpenses.toFixed(2) + ' ৳';
+      const qty = state.inventory.reduce((s,l) => s + l.quantityRemaining, 0);
+      const val = state.inventory.reduce((s,l) => s + l.quantityRemaining * l.costPer, 0);
+      document.getElementById('inventoryQty').textContent = qty;
+      document.getElementById('inventoryValue').textContent = val.toFixed(2) + ' ৳';
+    }
+
+    function updateTransactionList() {
+      const list = document.getElementById('transactionList');
+      list.innerHTML = '';
+      [...state.transactions].reverse().forEach((t, revIdx) => {
+        const idx = state.transactions.length - 1 - revIdx;
+        const li = document.createElement('li');
+        li.className = 'transaction-item';
+        let html = '';
+        if (t.type === 'buy') {
+          const cost = (t.amount / t.quantity).toFixed(2);
+          html = `<strong>Buy (${t.source})</strong>: ${t.quantity} × ${cost} ৳ = ${t.amount.toFixed(2)} ৳`;
+        } else if (t.type === 'sell') {
+          const total = (t.quantity * t.amount).toFixed(2);
+          const profit = (total - (t.cog || 0)).toFixed(2);
+          html = `<strong style="color:#32d74b">Sell</strong>: ${t.quantity} × ${t.amount.toFixed(2)} ৳ = ${total} ৳ <small>(Profit: ${profit} ৳)</small>`;
+          if (t.hasDeliveryFee) {
+            const fee = (t.quantity * t.amount * 0.01).toFixed(2);
+            html += ` <span style="color:#ff453a;font-weight:600;">-1% Delivery: -${fee} ৳</span>`;
+          }
+        } else if (t.type === 'expense') {
+          html = `<strong style="color:#ff9f0a">Expense</strong>: -${t.amount.toFixed(2)} ৳`;
+        }
+        html += ` <small>— ${new Date(t.date).toLocaleDateString('en-GB')}</small>`;
+        li.innerHTML = `<div class="transaction-text">${html}</div>`;
+        const del = document.createElement('button');
+        del.textContent = 'Delete';
+        del.className = 'delete-btn';
+        del.onclick = () => {
+          if (confirm('Delete this transaction?')) {
+            state.transactions.splice(idx, 1);
+            rebuildState();
+            saveState();
+            updateAll();
+            autoExport();
+          }
+        };
+        li.appendChild(del);
+        list.appendChild(li);
+      });
+    }
+
+    function updateAll() {
+      updateSummaries();
+      updateTransactionList();
+      createCharts();
+    }
+
+    function saveState() {
+      localStorage.setItem('financeState', JSON.stringify(state));
+    }
+
+    // FORM HANDLING
+    const typeSel = document.getElementById('transactionType');
+    const deliveryOption = document.getElementById('deliveryOption');
+    const deliveryCheckbox = document.getElementById('deliveryCheckbox');
+    const quantityInput = document.getElementById('quantity');
+    const amountInput = document.getElementById('amount');
+    const dateInput = document.getElementById('date');
+
+    typeSel.addEventListener('change', () => {
+      const type = typeSel.value;
+      document.getElementById('sourceWrapper').style.display = type === 'buy' ? 'block' : 'none';
+      quantityInput.style.display = type === 'expense' ? 'none' : 'block';
+      deliveryOption.style.display = type === 'sell' ? 'flex' : 'none';
+      amountInput.placeholder = type === 'expense' ? 'Expense Amount' : 
+                              type === 'sell' ? 'Price per Unit' : 'Total Amount';
+    });
+
+    document.getElementById('transactionForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const type = typeSel.value;
+      const qty = type === 'expense' ? 1 : parseFloat(quantityInput.value) || 0;
+      const amt = parseFloat(amountInput.value) || 0;
+      const date = dateInput.value;
+      if (!date || amt <= 0 || (type !== 'expense' && qty <= 0)) return alert('Invalid input!');
+
+      const trans = { type, amount: amt, date };
+      if (type === 'buy') {
+        const src = document.getElementById('source').value;
+        trans.source = src; trans.quantity = qty;
+        if (src === 'reinvest' && state.cash < amt) return alert('Not enough cash!');
+        state.inventory.push({ date, costPer: amt/qty, quantityRemaining: qty });
+        if (src === 'invest') state.totalInvested += amt;
+        else { state.cash -= amt; state.totalReinvested += amt; }
+      } else if (type === 'sell') {
+        trans.quantity = qty;
+        const totalInv = state.inventory.reduce((s,l)=>s+l.quantityRemaining,0);
+        if (qty > totalInv) return alert('Not enough inventory!');
+        let rem = qty, cog = 0, i = 0;
+        while (rem > 0 && i < state.inventory.length) {
+          const lot = state.inventory[i];
+          const take = Math.min(rem, lot.quantityRemaining);
+          cog += take * lot.costPer;
+          lot.quantityRemaining -= take;
+          rem -= take;
+          if (lot.quantityRemaining === 0) state.inventory.splice(i,1);
+          else i++;
+        }
+        const totalSale = qty * amt;
+        trans.cog = cog;
+        state.cash += totalSale;
+        state.totalReturns += totalSale;
+        state.totalProfits += (totalSale - cog);
+        if (deliveryCheckbox.checked) {
+          const fee = totalSale * 0.01;
+          state.cash -= fee;
+          state.totalDeliveryFees += fee;
+          trans.hasDeliveryFee = true;
+        }
+      } else if (type === 'expense') {
+        if (state.cash < amt) return alert('Not enough cash!');
+        state.cash -= amt;
+        state.totalExpenses += amt;
+      }
+
+      state.transactions.push(trans);
+      saveState();
+      rebuildState();
+      updateAll();
+      autoExport();
+
+      // FULLY CLEAR FORM
+      e.target.reset();
+      deliveryCheckbox.checked = false;
+      typeSel.selectedIndex = 0;
+      typeSel.dispatchEvent(new Event('change'));
+    });
+
+    // EXPORT / IMPORT / FOLDER
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'}));
+      a.download = `finca_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    });
+
+    document.getElementById('importBtn').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = '.json';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try {
+            state = JSON.parse(ev.target.result);
+            rebuildState();
+            saveState();
+            updateAll();
+            autoExport();
+            alert('Imported successfully!');
+          } catch { alert('Invalid file'); }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    });
+
+    document.getElementById('chooseFolderBtn').addEventListener('click', async () => {
+      try {
+        folderHandle = await window.showDirectoryPicker();
+        alert('Folder selected – auto-save enabled!');
+        await autoExport();
+      } catch (e) {
+        if (e.name !== 'AbortError') alert('Folder selection failed');
+      }
+    });
+
+    async function autoExport() {
+      if (!folderHandle) return;
+      try {
+        const fileHandle = await folderHandle.getFileHandle('finance_backup.json', { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(JSON.stringify(state, null, 2));
+        await writable.close();
+        saveStatus.classList.add('show');
+        setTimeout(() => saveStatus.classList.remove('show'), 2000);
+      } catch (e) { console.warn('Auto-export failed', e); }
+    }
+
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      if (confirm('Delete ALL data? This cannot be undone.')) {
+        state = { cash:0, totalInvested:0, totalReinvested:0, totalReturns:0, totalProfits:0, totalDeliveryFees:0, totalExpenses:0, inventory:[], transactions:[] };
+        localStorage.removeItem('financeState');
+        updateAll();
+        autoExport();
+      }
+    });
+
+    // INIT
+    rebuildState();
+    updateAll();
+    typeSel.dispatchEvent(new Event('change'));
+  </script>
+</body>
+</html>
